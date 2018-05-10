@@ -3,21 +3,17 @@
 volatile uint32_t lastBRAKEsignal;
 volatile uint32_t lastINDICATORsignal;
 
-const int BRAKEsignal = 6;
-const int INDICATORsignal = 8;
+const int BRAKEsignal = 2;
+const int INDICATORsignal = 3;
 const int BRAKElight = 10;
 const int INDICATORlight = 12;
 
-const int seconds = 10;
+const int seconds = 2;
 int seconds_in_millis = seconds * 1000;
-
-int brakestate = 0;
-int test_char = 0; 
-
 
 void setup() {
   Serial.begin(9600);
-
+  
   updateLastBRAKE();
   updateLastINDICATOR();
 
@@ -28,23 +24,28 @@ void setup() {
   pinMode(INDICATORlight, OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(BRAKEsignal), updateLastBRAKE, HIGH);
+  attachInterrupt(digitalPinToInterrupt(INDICATORsignal), updateLastINDICATOR, HIGH);
 }
 
 
 void loop(){
-  brakeLight();
-  indicatorLight();
-  updateLastBRAKE();
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    if ((millis()- lastBRAKEsignal >= seconds_in_millis) && (INDICATORsignal == HIGH)) {
+      digitalWrite(INDICATORlight, LOW);
+    else{
+      indicatorLight();
+    }
+  }
 }
 
 void updateLastBRAKE(){
   lastBRAKEsignal = millis();
-  Serial.println(lastBRAKEsignal);
-  delay(10);
 }
 
 void updateLastINDICATOR(){
   lastINDICATORsignal = millis();
+}
+
 }
 
 void indicatorLight(){
@@ -52,16 +53,14 @@ void indicatorLight(){
   
   indicatorstate = digitalRead(INDICATORsignal);
   //Serial.println(indicatorstate);
-  delay(10);
+  //delay(10);
   
   if (indicatorstate == 1) {
     digitalWrite(INDICATORlight, HIGH);
     delay(500);
     digitalWrite(INDICATORlight,LOW);
     delay(500);
-  } else {
-    digitalWrite(BRAKElight, LOW);
-  }
+}
 }
 
 void brakeLight(){ 
