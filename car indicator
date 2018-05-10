@@ -1,45 +1,58 @@
+#include <util/atomic.h>
+
+volatile uint32_t lastBRAKEsignal;
+volatile uint32_t lastINDICATORsignal;
+
 const int BRAKEsignal = 6;
 const int INDICATORsignal = 8;
 const int BRAKElight = 10;
 const int INDICATORlight = 12;
 
-int brakestate = 0;
-//int indicatorstate = 0;
+const int seconds = 10;
+int seconds_in_millis = seconds * 1000;
 
-#include <time.h>
-int seconds_since_epoch = (int)time(NULL);
+int brakestate = 0;
+int test_char = 0; 
+
 
 void setup() {
   Serial.begin(9600);
+
+  updateLastBRAKE();
+  updateLastINDICATOR();
+
+  //sets input pins to capture signals and output pins to drive relays
   pinMode(BRAKElight, OUTPUT);
-  pinMode(BRAKEsignal, INPUT);
-  pinMode(INDICATORsignal, INPUT);
+  pinMode(BRAKEsignal, INPUT_PULLUP);
+  pinMode(INDICATORsignal, INPUT_PULLUP);
   pinMode(INDICATORlight, OUTPUT);
+
+  attachInterrupt(digitalPinToInterrupt(BRAKEsignal), updateLastBRAKE, HIGH);
 }
 
 
 void loop(){
   brakeLight();
   indicatorLight();
+  updateLastBRAKE();
+}
+
+void updateLastBRAKE(){
+  lastBRAKEsignal = millis();
+  Serial.println(lastBRAKEsignal);
+  delay(10);
+}
+
+void updateLastINDICATOR(){
+  lastINDICATORsignal = millis();
 }
 
 void indicatorLight(){
-  //int val = 0;
   int indicatorstate = 0;
   
-  //int old_val = 0;
-  
-  //val = digitalRead(INDICATORsignal);
   indicatorstate = digitalRead(INDICATORsignal);
   //Serial.println(indicatorstate);
   delay(10);
-  
-  //if ((val == HIGH) && (old_val == LOW)){
-      //indicatorstate = 1 - indicatorstate;
-      //delay(30);
-  //}
-  
-  //old_val = val;
   
   if (indicatorstate == 1) {
     digitalWrite(INDICATORlight, HIGH);
@@ -51,22 +64,8 @@ void indicatorLight(){
   }
 }
 
-void brakeLight(){  
-  //int val = 0;
-  
-  //int old_val = 0;
-  
-  //val = digitalRead(BRAKEsignal);
+void brakeLight(){ 
   brakestate = digitalRead(BRAKEsignal);
-  Serial.println(NULL);
-  //delay(10);
-  
-  ///if ((val == HIGH) && (old_val == LOW)){
-      //brakestate = 1 - brakestate;
-      //delay(300);
-  //}
-  
-  //old_val = val;
   
   if (brakestate == 1) {
     digitalWrite(BRAKElight, HIGH);
