@@ -1,0 +1,70 @@
+const int BRAKEsignal = 6;
+const int INDICATORsignal = 8;
+const int BRAKElight = 10;
+const int INDICATORlight = 12;
+
+int brakestate = 0;
+int indicatorstate = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BRAKElight, OUTPUT);
+  pinMode(BRAKEsignal, INPUT);
+  pinMode(INDICATORsignal, INPUT);
+  pinMode(INDICATORlight, OUTPUT);
+}
+
+
+void loop(){
+  brakeLight();
+  indicatorLight();
+}
+
+void indicatorLight(){
+  int val = 0;
+  
+  int old_val = 0;
+  
+  val = digitalRead(INDICATORsignal);
+  Serial.println(val);
+  delay(10);
+  
+  if ((val == HIGH) && (old_val == LOW)){
+      indicatorstate = 1 - indicatorstate;
+      delay(30);
+  }
+  
+  old_val = val;
+  
+  if (indicatorstate == 1) {
+    digitalWrite(INDICATORlight, HIGH);
+    delay(500);
+    digitalWrite(INDICATORlight,LOW);
+    delay(500);
+  } else {
+    digitalWrite(BRAKElight, LOW);
+  }
+}
+
+void brakeLight(){  
+  int val = 0;
+  
+  int old_val = 0;
+  
+  val = digitalRead(BRAKEsignal);
+  //Serial.println(val);
+  //delay(10);
+  
+  if ((val == HIGH) && (old_val == LOW)){
+      brakestate = 1 - brakestate;
+      delay(300);
+  }
+  
+  old_val = val;
+  
+  if (brakestate == 1) {
+    digitalWrite(BRAKElight, HIGH);
+  } else {
+    digitalWrite(BRAKElight, LOW);
+  }
+}
