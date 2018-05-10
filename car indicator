@@ -4,7 +4,7 @@ const int BRAKElight = 10;
 const int INDICATORlight = 12;
 
 int brakestate = 0;
-int indicatorstate = 0;
+//int indicatorstate = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -21,20 +21,22 @@ void loop(){
 }
 
 void indicatorLight(){
-  int val = 0;
+  //int val = 0;
+  int indicatorstate = 0;
   
-  int old_val = 0;
+  //int old_val = 0;
   
-  val = digitalRead(INDICATORsignal);
-  Serial.println(val);
+  //val = digitalRead(INDICATORsignal);
+  indicatorstate = digitalRead(INDICATORsignal);
+  Serial.println(indicatorstate);
   delay(10);
   
-  if ((val == HIGH) && (old_val == LOW)){
-      indicatorstate = 1 - indicatorstate;
-      delay(30);
-  }
+  //if ((val == HIGH) && (old_val == LOW)){
+      //indicatorstate = 1 - indicatorstate;
+      //delay(30);
+  //}
   
-  old_val = val;
+  //old_val = val;
   
   if (indicatorstate == 1) {
     digitalWrite(INDICATORlight, HIGH);
